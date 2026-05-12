@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaEnvelope, FaLock, FaGraduationCap } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaGraduationCap, FaEye } from "react-icons/fa";
 import {login} from "../../api/auth"
 import Swal from "sweetalert2";
 
@@ -12,7 +12,7 @@ function Login() {
     email: "",
     password: "",
   });
-
+const [showPassword, setShowPassword] = useState(false);
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -108,12 +108,19 @@ function Login() {
               <FaLock className="absolute left-4 top-4 text-gray-400" />
 
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Password"
                 onChange={handleChange}
                 className="w-full border pl-12 pr-4 py-4 rounded-xl"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-4 text-gray-400"
+              >
+                <FaEye />
+              </button>
             </div>
 
             {/* REMEMBER */}
