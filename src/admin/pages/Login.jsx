@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaEnvelope, FaLock, FaGraduationCap } from "react-icons/fa";
+import {login} from "../../api/auth"
+import Swal from "sweetalert2";
 
 function Login() {
   const navigate = useNavigate();
@@ -18,13 +20,19 @@ function Login() {
     });
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-
-    // DUMMY AUTH
-    localStorage.setItem("auth", "true");
-
-    navigate("/portal");
+    try {
+      const res = await login(form.email, form.password);   
+      localStorage.setItem("auth", res.token);
+      localStorage.setItem("staff", JSON.stringify(res.staff));
+      Swal.fire("Login Successful", "Welcome back!", "success");
+      navigate("/portal");
+    } catch (error) {
+      console.error("Login failed:", error);
+      Swal.fire("Login Failed", "Invalid email or password.", "error");
+    }
+    
   };
 
   return (
@@ -125,17 +133,6 @@ function Login() {
               Login
             </button>
           </form>
-
-          {/* DUMMY LOGIN */}
-          <div className="mt-8 bg-blue-50 border border-blue-100 rounded-2xl p-4">
-            <h3 className="font-semibold text-blue-700 mb-2">
-              Demo Credentials
-            </h3>
-
-            <p className="text-sm text-gray-600">Email: admin@school.com</p>
-
-            <p className="text-sm text-gray-600">Password: password123</p>
-          </div>
         </motion.div>
       </div>
     </div>

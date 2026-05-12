@@ -3,6 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 import Login from "../pages/Login";
 import PortalDashboard from "../pages/Dashboard";
 import Students from "../pages/Students";
+import Applications from "../pages/Applications";
 import Staff from "../pages/Staff";
 import Classes from "../pages/Classes";
 import Subjects from "../pages/Subjects";
@@ -31,6 +32,15 @@ const AppRouter = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Students />
+      </ProtectedRoute>
+    ),
+  },
+
+  {
+    path: "/portal/applications",
+    element: (
+      <ProtectedRoute>
+        <Applications />
       </ProtectedRoute>
     ),
   },

@@ -1,4 +1,6 @@
 import PortalLayout from "../layouts/PortalLayout";
+import { useState, useEffect } from "react";
+import {getStats} from "../../api/dashboard";
 
 import {
   FaUsers,
@@ -10,31 +12,29 @@ import {
 import { motion } from "framer-motion";
 
 function PortalDashboard() {
-  const stats = [
-    {
-      title: "Total Students",
-      value: "1,245",
-      icon: FaUsers,
-    },
+  const [stats, setStats] = useState([
+    { title: "Total Students", value: 1200, icon: FaUsers },
+    { title: "Total Teachers", value: 80, icon: FaChalkboardTeacher },
+    { title: "Total Fees Collected", value: "$150,000", icon: FaMoneyBillWave },
+    { title: "Total Subjects", value: 25, icon: FaBook },
+  ]);
+useEffect(() => {
+  const fetchStats = async () => {
+    try {
+      const response = await getStats();
+      setStats([
+        { title: "Total Students", value: response.data.students, icon: FaUsers },
+        { title: "Total Teachers", value: response.data.teachers, icon: FaChalkboardTeacher },
+        { title: "Total Fees Collected", value: `N ${response.data.totalFeesCollected || 0.00}`, icon: FaMoneyBillWave },
+        { title: "Total Subjects", value: response.data.subjects, icon: FaBook },
+      ]);
+    } catch (error) {
+      console.error("Failed to fetch dashboard stats:", error);
+    }
+  };
 
-    {
-      title: "Teachers",
-      value: "58",
-      icon: FaChalkboardTeacher,
-    },
-
-    {
-      title: "Subjects",
-      value: "34",
-      icon: FaBook,
-    },
-
-    {
-      title: "Revenue",
-      value: "₦12.4M",
-      icon: FaMoneyBillWave,
-    },
-  ];
+  fetchStats();
+}, []);
 
   return (
     <PortalLayout>

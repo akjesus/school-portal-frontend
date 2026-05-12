@@ -16,3 +16,13 @@ export const getStudents = async () => {
     throw error;
   }
 };
+
+export const addStudent = async (data) => {
+  try {
+    const response = await api.post("/students", data);
+    return response.data;
+  } catch (error) {
+    console.error("Error adding student:", error);
+    throw error;
+  }
+};

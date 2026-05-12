@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import PortalLayout from "../layouts/PortalLayout";
+import Swal from "sweetalert2"
 
 import {
   FaPlus,
@@ -13,10 +14,24 @@ import {
 } from "react-icons/fa";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { getStudents } from "../../api/students";
+import { getStudents, addStudent } from "../../api/students";
+import { address } from "framer-motion/client";
+import { GiDogBowl } from "react-icons/gi";
 
 function Students() {
   const [students, setStudents] = useState([]);
+  const [newStudent, setNewStudent] = useState({
+    firstName: "",
+    lastName: "",
+    admissionNo: "",
+    gender: "",
+    dob: "",
+    email: "",
+    phone: "",
+    parentName: "",
+    parentPhone: "",
+    address: "",
+  });
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,6 +41,12 @@ function Students() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
+  const handleInputChange = (e) => {
+    setNewStudent({
+      ...newStudent,
+      [e.target.name]: e.target.value,
+    });
+  };
   useEffect(() => {
     setLoading(true);
 
@@ -76,12 +97,34 @@ function Students() {
     );
   };
 
-  const filtered = students.filter((s) =>
-    s.first_name.toLowerCase().includes(debouncedSearch.toLowerCase())
-      || s.last_name.toLowerCase().includes(debouncedSearch.toLowerCase())
-      || s.admission_no.toLowerCase().includes(debouncedSearch.toLowerCase())  ,
+  const filtered = students.filter(
+    (s) =>
+      s.firstName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      s.lastName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      s.admissionNo.toLowerCase().includes(debouncedSearch.toLowerCase()),
   );
-
+  const handleAddStudent = async () => {
+    try {
+      console.log("Adding student:", newStudent);
+      const res = await addStudent(newStudent);
+      if (res.success) {
+        await Swal.fire({
+          icon: "success",
+          title: "Student Added",
+          text: res.message || "The student has been added successfully.",
+        });
+        setStudents((prev) => [...prev, res.student]);
+      }
+    } catch (error) {
+      await Swal.fire({
+        icon: "error",
+        title: "Error adding student",
+        text: error.message || "An error occurred while adding the student.",
+      });
+    }
+    
+    setShowAddModal(false);
+  };
   const totalPages = Math.ceil(filtered.length / pageSize);
 
   const paginatedStudents = filtered.slice(
@@ -177,14 +220,14 @@ function Students() {
 
                         <div>
                           <h3 className="font-semibold">
-                            {s.first_name} {s.last_name}
+                            {s.firstName} {s.lastName}
                           </h3>
                           <p className="text-sm text-gray-500">{s.email}</p>
                         </div>
                       </div>
                     </td>
 
-                    <td>{s.admission_no}</td>
+                    <td>{s.admissionNo}</td>
                     <td>{s.class}</td>
                     <td>{s.gender}</td>
 
@@ -240,9 +283,9 @@ function Students() {
 
                     <div>
                       <h3 className="font-semibold">
-                        {s.first_name} {s.last_name}
+                        {s.firstName} {s.lastName}
                       </h3>
-                      <p className="text-sm text-gray-500">{s.admission_no}</p>
+                      <p className="text-sm text-gray-500">{s.admissionNo}</p>
                     </div>
                   </div>
 
@@ -352,10 +395,11 @@ function Students() {
 
               <div className="space-y-3 text-sm">
                 <p>
-                  <b>Name:</b>  {selectedStudent.first_name} {selectedStudent.last_name}
+                  <b>Name:</b> {selectedStudent.firstName}{" "}
+                  {selectedStudent.lastName}
                 </p>
                 <p>
-                  <b>Admission No:</b> {selectedStudent.admission_no}
+                  <b>Admission No:</b> {selectedStudent.admissionNo}
                 </p>
                 <p>
                   <b>Class:</b> {selectedStudent.class}
@@ -413,55 +457,114 @@ function Students() {
               {/* FORM */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
+                  name="firstName"
+                  value={newStudent.firstName}
+                  onChange={handleInputChange}
                   className="focus:no-outline shadow p-3 rounded-2xl"
                   placeholder="First Name"
                 />
                 <input
+                  name="lastName"
+                  value={newStudent.lastName}
+                  onChange={handleInputChange}
                   className="focus:no-outline shadow p-3 rounded-2xl"
                   placeholder="Last Name"
                 />
 
                 <input
+                  name="admissionNo"
+                  value={newStudent.admissionNo}
+                  onChange={handleInputChange}
                   className="focus:no-outline shadow p-3 rounded-2xl"
                   placeholder="Admission No"
                 />
 
-                <select className="shadow p-3 rounded-2xl">
+                <select
+                  name={"class"}
+                  value={newStudent.class}
+                  onChange={handleInputChange}
+                  className="shadow p-3 rounded-2xl"
+                >
                   <option>Select Class</option>
                   <option>JSS1</option>
                   <option>JSS2</option>
                   <option>SS1</option>
                 </select>
 
-                <select className="border border-gray-300 p-3 rounded-2xl">
+                <select
+                  name={"gender"}
+                  value={newStudent.gender}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 p-3 rounded-2xl"
+                >
                   <option>Gender</option>
                   <option>Male</option>
                   <option>Female</option>
                 </select>
 
                 <input
+                  name="dob"
+                  value={newStudent.dob}
+                  onChange={handleInputChange}
                   className="border border-gray-300 p-3 rounded-2xl"
                   type="date"
                 />
 
                 <input
-                  className="border border-gray-300 p-3 rounded-2xl md:col-span-2"
+                  name="email"
+                  value={newStudent.email}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 p-3 rounded-2xl "
                   placeholder="Email"
                 />
 
                 <input
-                  className="border border-gray-300 p-3 rounded-2xl md:col-span-2"
+                  name="phone"
+                  value={newStudent.phone}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 p-3 rounded-2xl "
                   placeholder="Phone"
+                />
+                <input
+                  name="parentName"
+                  value={newStudent.parentName}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 p-3 rounded-2xl "
+                  placeholder="Parent Name"
+                />
+
+                <input
+                  name="parentPhone"
+                  value={newStudent.parentPhone }
+                  onChange={handleInputChange}
+                  className="border border-gray-300 p-3 rounded-2xl "
+                  placeholder="Parent Phone"
                 />
 
                 <textarea
+                  name="address"
+                  value={newStudent.address}
+                  onChange={handleInputChange}
                   className="border border-gray-300 p-3 rounded-2xl md:col-span-2"
                   placeholder="Address"
                 />
               </div>
 
               {/* ACTIONS */}
-              <button className="w-full mt-6 bg-[#062E70] text-white py-3 rounded-2xl">
+              <button
+                disabled={
+                  !newStudent.firstName ||
+                  !newStudent.lastName ||
+                  !newStudent.admissionNo ||
+                  !newStudent.class ||
+                  !newStudent.gender ||
+                  !newStudent.dob ||
+                  !newStudent.email ||
+                  !newStudent.phone
+                }
+                onClick={handleAddStudent}
+                className="w-full mt-6 bg-[#062E70] text-white py-3 rounded-2xl"
+              >
                 Save Student
               </button>
             </motion.div>

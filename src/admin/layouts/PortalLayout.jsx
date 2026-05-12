@@ -20,13 +20,16 @@ import {
 
 function PortalLayout({ children }) {
   const [open, setOpen] = useState(false);
-
+  const [staff, setStaff] = useState(
+    JSON.parse(localStorage.getItem("staff")) || null,
+  );
   const location = useLocation();
   const navigate = useNavigate();
 
   const logout = () => {
-    localStorage.removeItem("portalAuth");
-    navigate("/portal/login");
+    localStorage.removeItem("auth");
+    localStorage.removeItem("staff");
+    navigate("/");
   };
 
   const menu = [
@@ -101,7 +104,11 @@ function PortalLayout({ children }) {
           icon: FaNewspaper,
           path: "/portal/news",
         },
-
+        {
+          name: "Applications",
+          icon: FaNewspaper,
+          path: "/portal/applications",
+        },
         {
           name: "Settings",
           icon: FaCog,
@@ -144,10 +151,10 @@ function PortalLayout({ children }) {
           {/* USER */}
           <div className="bg-white/10 rounded-2xl p-4 mb-8">
             <div className="w-16 h-16 rounded-full bg-white mb-4"></div>
-
-            <h2 className="font-bold text-lg">Super Admin</h2>
-
-            <p className="text-blue-200 text-sm">admin@school.com</p>
+            <h2 className="font-bold text-lg">
+              {staff?.role || "Super Admin"}
+            </h2>
+            <p className="text-blue-200 text-sm">{staff?.email}</p>
           </div>
 
           {/* MENU */}
@@ -170,7 +177,9 @@ function PortalLayout({ children }) {
                         to={item.path}
                         onClick={() => setOpen(false)}
                         className={`flex items-center gap-3 p-3 rounded-xl transition ${
-                          active ? "bg-white text-[#062E70]" : "hover:bg-blue-800"
+                          active
+                            ? "bg-white text-[#062E70]"
+                            : "hover:bg-blue-800"
                         }`}
                       >
                         <Icon />
@@ -211,9 +220,13 @@ function PortalLayout({ children }) {
           {/* RIGHT */}
           <div className="flex items-center gap-4">
             <div className="hidden md:block text-right">
-              <h3 className="font-semibold">Administrator</h3>
+              <h3 className="font-semibold">
+                {staff?.name || "Administrator"}
+              </h3>
 
-              <p className="text-xs text-gray-500">Super Admin</p>
+              <p className="text-xs text-gray-500">
+                {staff?.role || "Super Admin"}
+              </p>
             </div>
 
             <div className="w-10 h-10 rounded-full bg-blue-700"></div>
